@@ -1,0 +1,95 @@
+@startuml
+
+class Main {
+    +main(args: String[]): void
+}
+
+class SmartMirror {
+    -modelName: String
+    -displayType: DisplayType
+    -operatingMode: OperatingMode
+    -sensorConfig: SensorConfig
+    -arLayerEnabled: boolean
+    -voiceAssistantEnabled: boolean
+    -weatherIntegrationEnabled: boolean
+    -digitalWardrobeEnabled: boolean
+    -accessibilityModeEnabled: boolean
+    -speakerVolume: int
+    -brightness: int
+
+    +getModelName(): String
+    +getDisplayType(): DisplayType
+    +getOperatingMode(): OperatingMode
+    +getSensorConfig(): SensorConfig
+    +isArLayerEnabled(): boolean
+    +isVoiceAssistantEnabled(): boolean
+    +isWeatherIntegrationEnabled(): boolean
+    +isDigitalWardrobeEnabled(): boolean
+    +isAccessibilityModeEnabled(): boolean
+    +getSpeakerVolume(): int
+    +getBrightness(): int
+}
+
+class "SmartMirror.Builder" as Builder {
+    -modelName: String
+    -displayType: DisplayType
+    -cameraResolution: String
+    -operatingMode: OperatingMode
+    -lidarEnabled: boolean
+    -arLayerEnabled: boolean
+    -voiceAssistantEnabled: boolean
+    -motionControlEnabled: boolean
+    -weatherIntegrationEnabled: boolean
+    -digitalWardrobeEnabled: boolean
+    -accessibilityModeEnabled: boolean
+    -speakerVolume: int
+    -brightness: int
+
+    +withLidar(): Builder
+    +withARLayer(): Builder
+    +withVoiceAssistant(): Builder
+    +withMotionControl(): Builder
+    +withWeatherIntegration(): Builder
+    +withDigitalWardrobe(): Builder
+    +withAccessibilityMode(): Builder
+    +speakerVolume(value: int): Builder
+    +brightness(value: int): Builder
+    +build(): SmartMirror
+}
+
+class SmartMirrorDirector {
+    +createBasicMirror(): SmartMirror
+    +createSmartMirror(): SmartMirror
+    +createPremiumMirror(): SmartMirror
+}
+
+class SensorConfig {
+    -cameraResolution: String
+    -lidarEnabled: boolean
+    -motionControlEnabled: boolean
+}
+
+enum DisplayType {
+    OLED_4K
+    OLED_HD
+    LCD
+}
+
+enum OperatingMode {
+    BASIC
+    SMART
+    PREMIUM
+    ACCESSIBILITY
+}
+
+Main --> SmartMirrorDirector
+Main --> Builder
+
+SmartMirrorDirector --> Builder
+
+Builder --> SmartMirror : builds
+SmartMirror *-- SensorConfig
+SmartMirror --> DisplayType
+SmartMirror --> OperatingMode
+
+@enduml
