@@ -575,21 +575,21 @@ This demonstrates Product independence.
 
 Example output:
 
-    === MANUAL BUILDER ===
+    MANUAL BUILDER 
     SmartMirror{modelName='MIRR-AI Custom', displayType=OLED_4K, ...}
 
-    === BASIC PRESET ===
+    BASIC PRESET 
     SmartMirror{modelName='MIRR-AI Basic', displayType=OLED_HD, ...}
 
-    === SMART PRESET ===
+    SMART PRESET 
     SmartMirror{modelName='MIRR-AI Smart', displayType=OLED_4K, ...}
 
-    === PREMIUM PRESET ===
+    PREMIUM PRESET 
     SmartMirror{modelName='MIRR-AI Pro', displayType=OLED_4K, ...}
 
     Premium MIRR-AI created successfully 🍌
 
-    === INVALID CONFIGURATION ===
+    INVALID CONFIGURATION 
     Error: AR Layer requires LiDAR/depth sensing.
 
 ## 18. Git Development History
@@ -621,4 +621,4 @@ The project also demonstrates Clean Code principles, automated testing, UML mode
 
 GitHub Repository:
 
-<ADD GITHUB LINK HERE>
+<https://github.com/JustMel1508/assignment-1-builder>
