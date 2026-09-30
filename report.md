@@ -320,78 +320,177 @@ The UML contains:
 
 ## 13. Clean Code Before -> After
 
-### Example 1 — Validation
+The project applies Clean Code principles such as small functions, descriptive naming, minimizing function arguments, DRY, single responsibility and clear error handling.
+
+### Example 1 — Long Constructor vs Builder API
 
 BEFORE:
 
-A possible implementation could contain one large validation method with all validation rules.
+The initial implementation uses the constructor from LegacySmartMirror:
+
+    LegacySmartMirror mirror = new LegacySmartMirror(
+            "MIRR-AI Pro",
+            DisplayType.OLED_4K,
+            "4K",
+            OperatingMode.PREMIUM,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            80,
+            90
+    );
+
+What was wrong?
+
+The constructor contains many arguments. The boolean values are especially difficult to understand because the Client cannot immediately see which feature each true or false value represents.
+
+Clean Code principles:
+
+- Minimize Function Arguments
+- Descriptive Naming
+
+AFTER:
+
+The final implementation uses Builder:
+
+    SmartMirror mirror = new SmartMirror.Builder(
+            "MIRR-AI Pro",
+            DisplayType.OLED_4K,
+            "4K",
+            OperatingMode.PREMIUM
+    )
+            .withLidar()
+            .withARLayer()
+            .withVoiceAssistant()
+            .withMotionControl()
+            .withWeatherIntegration()
+            .withDigitalWardrobe()
+            .withAccessibilityMode()
+            .speakerVolume(80)
+            .brightness(90)
+            .build();
+
+Why is it better?
+
+Only the required values are passed to the Builder constructor. Optional configuration is expressed using descriptive methods such as withLidar() and withARLayer(). The Client code is easier to read and less likely to contain parameter-order mistakes.
+
+### Example 2 — No Validation vs Small Validation Functions
+
+BEFORE:
+
+LegacySmartMirror accepts the constructor values directly:
+
+    this.modelName = modelName;
+    this.lidarEnabled = lidarEnabled;
+    this.arLayerEnabled = arLayerEnabled;
+    this.speakerVolume = speakerVolume;
+    this.brightness = brightness;
+
+There is no check that the values create a valid configuration.
+
+For example, the old implementation could accept AR without LiDAR or brightness greater than 100.
+
+What was wrong?
+
+Invalid objects could be created because construction and validation were not controlled.
+
+Clean Code principles:
+
+- Clear Error Handling
+- Small Functions
+- Single Responsibility
+
+AFTER:
+
+SmartMirror.Builder calls:
+
+    private void validate() {
+        validateModelName();
+        validateSpeakerVolume();
+        validateBrightness();
+        validateARCompatibility();
+        validateAccessibilityCompatibility();
+    }
+
+Each rule is implemented in its own method.
 
 Example:
 
-    private void validate() {
-        if (...) { ... }
-        if (...) { ... }
-        if (...) { ... }
-        if (...) { ... }
-        if (...) { ... }
+    private void validateARCompatibility() {
+        if (arLayerEnabled && !lidarEnabled) {
+            throw new IllegalArgumentException(
+                    "AR Layer requires LiDAR/depth sensing."
+            );
+        }
     }
 
-Problem:
-The method would have several responsibilities and would become difficult to read.
+Why is it better?
 
-AFTER:
+Each function has one clear responsibility. Validation rules are easy to find, understand and modify. Invalid SmartMirror objects are rejected before the Product is created.
 
-    validateModelName();
-    validateSpeakerVolume();
-    validateBrightness();
-    validateARCompatibility();
-    validateAccessibilityCompatibility();
-
-Clean Code Principle:
-Small Functions and Single Responsibility.
-
-Why it is better:
-Each method checks one specific rule, so the code is easier to understand and modify.
-
-### Example 2 — Domain-Oriented Method Names
+### Example 3 — Manual Configuration vs Reusable Director Presets
 
 BEFORE:
 
-    setLidar(true);
+A SmartMirror can be configured manually in the Client:
 
-Problem:
-The method exposes a low-level boolean configuration.
+    SmartMirror manualMirror = new SmartMirror.Builder(
+            "MIRR-AI Custom",
+            DisplayType.OLED_4K,
+            "4K",
+            OperatingMode.SMART
+    )
+            .withVoiceAssistant()
+            .withMotionControl()
+            .withWeatherIntegration()
+            .speakerVolume(65)
+            .brightness(80)
+            .build();
+
+If standard configurations were written manually every time, the same Builder sequences would be repeated in the Client code.
+
+What was wrong?
+
+Reusable configuration knowledge would be duplicated across the application.
+
+Clean Code principle:
+
+- DRY — Don't Repeat Yourself
 
 AFTER:
 
-    withLidar();
+Standard configurations are stored in SmartMirrorDirector:
 
-Clean Code Principle:
-Descriptive Naming.
+    public SmartMirror createPremiumMirror() {
+        return new SmartMirror.Builder(
+                "MIRR-AI Pro",
+                DisplayType.OLED_4K,
+                "4K",
+                OperatingMode.PREMIUM
+        )
+                .withLidar()
+                .withARLayer()
+                .withVoiceAssistant()
+                .withMotionControl()
+                .withWeatherIntegration()
+                .withDigitalWardrobe()
+                .withAccessibilityMode()
+                .speakerVolume(80)
+                .brightness(90)
+                .build();
+    }
 
-Why it is better:
-The method clearly describes what feature is being added to the mirror.
+The Client can simply use:
 
-### Example 3 — Preset Duplication
+    SmartMirror premiumMirror = director.createPremiumMirror();
 
-BEFORE:
+Why is it better?
 
-The same Builder chains could be written repeatedly in Main.
-
-Problem:
-The same construction logic would be duplicated.
-
-AFTER:
-
-    director.createBasicMirror();
-    director.createSmartMirror();
-    director.createPremiumMirror();
-
-Clean Code Principle:
-DRY — Don't Repeat Yourself.
-
-Why it is better:
-Preset configuration is stored in one place and can be reused by the Client.
+The PREMIUM construction sequence is defined in one place. The Client does not need to know every construction step, and the same preset can be reused without duplicating code.
 
 ## 14. Design Decision
 
